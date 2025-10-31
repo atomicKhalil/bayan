@@ -130,7 +130,7 @@ class Paper:
             "sections": self.extract_sections(),
             "references": self.extract_references(),
             "tables": self.extract_tables(),
-            "figures": self.extract_figures()
+            "figures": self.extract_figures(),
         }
 
     def export(self, format: str, output_path: str, data: dict = None):

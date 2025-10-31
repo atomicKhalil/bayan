@@ -69,7 +69,7 @@ class PaperExtractor:
             "year": year,
             "emails": emails,
             "keywords": keywords,
-            "page_count": self.parser.page_count
+            "page_count": self.parser.page_count,
         }
 
     def _extract_title(self, first_page: str, pdf_meta: Dict) -> str:
@@ -113,7 +113,7 @@ class PaperExtractor:
             if TextUtils.is_likely_title(cleaned) and len(cleaned) > 15:
                 # Check if next lines continue the title
                 full_title = cleaned
-                for next_line in lines[i+1:i+3]:
+                for next_line in lines[i + 1 : i + 3]:
                     next_cleaned = next_line.strip()
                     if next_cleaned and not TextUtils.is_likely_author(next_cleaned):
                         if next_cleaned[0].isupper() or next_cleaned[0].islower():
@@ -153,7 +153,7 @@ class PaperExtractor:
                     parts = [p.strip() for p in clean_line.split(",")]
                     authors.extend([p for p in parts if TextUtils.is_likely_author(p)])
                 elif " and " in clean_line.lower():
-                    parts = re.split(r'\s+and\s+', clean_line, flags=re.IGNORECASE)
+                    parts = re.split(r"\s+and\s+", clean_line, flags=re.IGNORECASE)
                     authors.extend([p.strip() for p in parts if TextUtils.is_likely_author(p)])
                 else:
                     authors.append(clean_line)
@@ -175,8 +175,16 @@ class PaperExtractor:
 
         # Common affiliation indicators
         affiliation_keywords = [
-            "university", "college", "institute", "laboratory", "department",
-            "school", "center", "lab", "research", "faculty"
+            "university",
+            "college",
+            "institute",
+            "laboratory",
+            "department",
+            "school",
+            "center",
+            "lab",
+            "research",
+            "faculty",
         ]
 
         for line in lines[:40]:  # Check first 40 lines
@@ -186,7 +194,7 @@ class PaperExtractor:
                 clean_line = line.strip()
 
                 # Remove affiliation markers
-                clean_line = re.sub(r'^[0-9*†‡§¶,]+\s*', '', clean_line)
+                clean_line = re.sub(r"^[0-9*†‡§¶,]+\s*", "", clean_line)
 
                 if len(clean_line) > 5 and clean_line not in affiliations:
                     affiliations.append(clean_line)
@@ -213,9 +221,9 @@ class PaperExtractor:
 
         # Look for explicit keywords section
         match = re.search(
-            r'(?:keywords?|index terms)[:\s]+(.+?)(?:\n\n|abstract|introduction|$)',
+            r"(?:keywords?|index terms)[:\s]+(.+?)(?:\n\n|abstract|introduction|$)",
             text,
-            re.IGNORECASE | re.DOTALL
+            re.IGNORECASE | re.DOTALL,
         )
 
         if match:
@@ -295,9 +303,7 @@ class PaperExtractor:
 
         # Find references section
         ref_match = re.search(
-            r'(?:^|\n)(?:references|bibliography)(?:\n|$)(.+)',
-            full_text,
-            re.IGNORECASE | re.DOTALL
+            r"(?:^|\n)(?:references|bibliography)(?:\n|$)(.+)", full_text, re.IGNORECASE | re.DOTALL
         )
 
         if not ref_match:
@@ -319,7 +325,7 @@ class PaperExtractor:
         references = []
 
         # Split by reference numbers
-        pattern = r'\[(\d+)\]\s*(.+?)(?=\[\d+\]|$)'
+        pattern = r"\[(\d+)\]\s*(.+?)(?=\[\d+\]|$)"
         matches = re.findall(pattern, text, re.DOTALL)
 
         for ref_num, ref_text in matches:
@@ -335,12 +341,7 @@ class PaperExtractor:
                 dois = TextUtils.extract_dois(ref_text)
                 doi = dois[0] if dois else None
 
-                references.append({
-                    "id": int(ref_num),
-                    "text": ref_text,
-                    "year": year,
-                    "doi": doi
-                })
+                references.append({"id": int(ref_num), "text": ref_text, "year": year, "doi": doi})
 
         return references
 
@@ -356,7 +357,7 @@ class PaperExtractor:
 
             if len(line) > 20:  # Minimum length for a reference
                 # Try to extract author and year
-                match = re.match(r'^(.+?)\s*\((\d{4})\)', line)
+                match = re.match(r"^(.+?)\s*\((\d{4})\)", line)
 
                 if match:
                     authors = match.group(1).strip()
@@ -366,13 +367,9 @@ class PaperExtractor:
                     dois = TextUtils.extract_dois(line)
                     doi = dois[0] if dois else None
 
-                    references.append({
-                        "id": ref_id,
-                        "text": line,
-                        "authors": authors,
-                        "year": year,
-                        "doi": doi
-                    })
+                    references.append(
+                        {"id": ref_id, "text": line, "authors": authors, "year": year, "doi": doi}
+                    )
 
                     ref_id += 1
 
@@ -404,5 +401,5 @@ class PaperExtractor:
             "year": metadata["year"],
             "abstract": abstract[:500] + "..." if len(abstract) > 500 else abstract,
             "doi": metadata["doi"],
-            "page_count": metadata["page_count"]
+            "page_count": metadata["page_count"],
         }

@@ -13,81 +13,61 @@ class RegexPatterns:
     """
 
     # DOI patterns
-    DOI = re.compile(
-        r'\b(10\.\d{4,}(?:\.\d+)?/(?:(?!["&\'<>])\S)+)\b',
-        re.IGNORECASE
-    )
+    DOI = re.compile(r'\b(10\.\d{4,}(?:\.\d+)?/(?:(?!["&\'<>])\S)+)\b', re.IGNORECASE)
 
     # arXiv ID patterns
-    ARXIV = re.compile(
-        r'\barXiv:(\d{4}\.\d{4,5}(?:v\d+)?)\b',
-        re.IGNORECASE
-    )
+    ARXIV = re.compile(r"\barXiv:(\d{4}\.\d{4,5}(?:v\d+)?)\b", re.IGNORECASE)
 
     # Email addresses
-    EMAIL = re.compile(
-        r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-    )
+    EMAIL = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
 
     # URLs
     URL = re.compile(
-        r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
     )
 
     # Year patterns (1900-2099)
-    YEAR = re.compile(r'\b(?:19|20)\d{2}\b')
+    YEAR = re.compile(r"\b(?:19|20)\d{2}\b")
 
     # Common section headers
     SECTION_HEADERS = re.compile(
-        r'^(?:abstract|introduction|related\s+work|background|methodology|methods?|'
-        r'experimental?\s+(?:setup|results?)|evaluation|results?|discussion|'
-        r'conclusion|references|acknowledgments?|appendix|supplementary)',
-        re.IGNORECASE | re.MULTILINE
+        r"^(?:abstract|introduction|related\s+work|background|methodology|methods?|"
+        r"experimental?\s+(?:setup|results?)|evaluation|results?|discussion|"
+        r"conclusion|references|acknowledgments?|appendix|supplementary)",
+        re.IGNORECASE | re.MULTILINE,
     )
 
     # Reference patterns (various styles)
-    REFERENCE_NUMBERED = re.compile(
-        r'^\s*\[?(\d+)\]?\s*(.+?)$',
-        re.MULTILINE
-    )
+    REFERENCE_NUMBERED = re.compile(r"^\s*\[?(\d+)\]?\s*(.+?)$", re.MULTILINE)
 
-    REFERENCE_AUTHOR_YEAR = re.compile(
-        r'^([A-Z][a-zA-Z\s,\.\-]+?)\s*\((\d{4})\)',
-        re.MULTILINE
-    )
+    REFERENCE_AUTHOR_YEAR = re.compile(r"^([A-Z][a-zA-Z\s,\.\-]+?)\s*\((\d{4})\)", re.MULTILINE)
 
     # Table and figure captions
     TABLE_CAPTION = re.compile(
-        r'(?:Table|TABLE)\s+(\d+|[IVX]+)[:\.]?\s*(.+?)'
-        r'(?=(?:Table|TABLE|Figure|FIGURE|\n\n|$))',
-        re.IGNORECASE | re.DOTALL
+        r"(?:Table|TABLE)\s+(\d+|[IVX]+)[:\.]?\s*(.+?)" r"(?=(?:Table|TABLE|Figure|FIGURE|\n\n|$))",
+        re.IGNORECASE | re.DOTALL,
     )
 
     FIGURE_CAPTION = re.compile(
-        r'(?:Figure|Fig\.|FIG\.?)\s+(\d+|[IVX]+)[:\.]?\s*(.+?)'
-        r'(?=(?:Table|TABLE|Figure|FIGURE|Fig\.|\n\n|$))',
-        re.IGNORECASE | re.DOTALL
+        r"(?:Figure|Fig\.|FIG\.?)\s+(\d+|[IVX]+)[:\.]?\s*(.+?)"
+        r"(?=(?:Table|TABLE|Figure|FIGURE|Fig\.|\n\n|$))",
+        re.IGNORECASE | re.DOTALL,
     )
 
     # Author name patterns
-    AUTHOR_NAME = re.compile(
-        r'\b([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+)\b'
-    )
+    AUTHOR_NAME = re.compile(r"\b([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+)\b")
 
     # Common affiliations markers
-    AFFILIATION_MARKER = re.compile(r'[0-9*†‡§¶,]+')
+    AFFILIATION_MARKER = re.compile(r"[0-9*†‡§¶,]+")
 
     # ISBN patterns
     ISBN = re.compile(
-        r'ISBN(?:-1[03])?:?\s*(?:97[89][\s-]?)?'
-        r'\d{1,5}[\s-]?\d{1,7}[\s-]?\d{1,7}[\s-]?\d{1,7}[\s-]?\d'
+        r"ISBN(?:-1[03])?:?\s*(?:97[89][\s-]?)?"
+        r"\d{1,5}[\s-]?\d{1,7}[\s-]?\d{1,7}[\s-]?\d{1,7}[\s-]?\d"
     )
 
     # Common abbreviations in papers
-    ABBREVIATIONS = re.compile(
-        r'\b(?:e\.g\.|i\.e\.|et al\.|cf\.|vs\.|viz\.)\b',
-        re.IGNORECASE
-    )
+    ABBREVIATIONS = re.compile(r"\b(?:e\.g\.|i\.e\.|et al\.|cf\.|vs\.|viz\.)\b", re.IGNORECASE)
 
 
 class TextUtils:
@@ -214,10 +194,7 @@ class TextUtils:
             if match and len(line.strip()) < 50:  # Likely a header
                 # Save previous section
                 if current_content:
-                    sections.append((
-                        current_section,
-                        "\n".join(current_content).strip()
-                    ))
+                    sections.append((current_section, "\n".join(current_content).strip()))
 
                 # Start new section
                 current_section = line.strip().lower()
@@ -227,10 +204,7 @@ class TextUtils:
 
         # Add final section
         if current_content:
-            sections.append((
-                current_section,
-                "\n".join(current_content).strip()
-            ))
+            sections.append((current_section, "\n".join(current_content).strip()))
 
         return sections
 
@@ -308,7 +282,7 @@ class TextUtils:
             return False
 
         # Should not have reference markers
-        if re.search(r'\[\d+\]', text):
+        if re.search(r"\[\d+\]", text):
             return False
 
         return True
@@ -361,7 +335,7 @@ class TextUtils:
         text = text.replace("\n", " ")
 
         # Collapse multiple spaces
-        text = re.sub(r'\s+', ' ', text)
+        text = re.sub(r"\s+", " ", text)
 
         return text.strip()
 
@@ -430,7 +404,7 @@ class FormatUtils:
         Returns:
             Human-readable string (e.g., "1.5 MB")
         """
-        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        for unit in ["B", "KB", "MB", "GB", "TB"]:
             if num_bytes < 1024.0:
                 return f"{num_bytes:.1f} {unit}"
             num_bytes /= 1024.0

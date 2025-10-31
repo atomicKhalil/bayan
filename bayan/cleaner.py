@@ -17,10 +17,8 @@ class TextCleaner:
         self.patterns = {
             # Multiple spaces to single space
             "multiple_spaces": re.compile(r" {2,}"),
-
             # Hyphenated line breaks (e.g., "com-\nputer" -> "computer")
             "hyphenated_linebreak": re.compile(r"(\w+)-\s*\n\s*(\w+)"),
-
             # Common ligatures
             "ligatures": {
                 "ﬁ": "fi",
@@ -30,23 +28,19 @@ class TextCleaner:
                 "ﬄ": "ffl",
                 "ﬆ": "st",
             },
-
             # Header/footer patterns (page numbers, common headers)
             "page_numbers": re.compile(r"^\s*\d+\s*$", re.MULTILINE),
-
             # Excessive newlines
             "excessive_newlines": re.compile(r"\n{3,}"),
-
             # Unicode normalization issues
             "unicode_dashes": {
-                "\u2010": "-",   # Hyphen
-                "\u2011": "-",   # Non-breaking hyphen
-                "\u2012": "-",   # Figure dash
-                "\u2013": "-",   # En dash
+                "\u2010": "-",  # Hyphen
+                "\u2011": "-",  # Non-breaking hyphen
+                "\u2012": "-",  # Figure dash
+                "\u2013": "-",  # En dash
                 "\u2014": "--",  # Em dash
                 "\u2015": "--",  # Horizontal bar
             },
-
             "unicode_quotes": {
                 "\u2018": "'",  # Left single quote
                 "\u2019": "'",  # Right single quote
@@ -57,10 +51,8 @@ class TextCleaner:
                 "\u201e": '"',  # Double low quote
                 "\u201f": '"',  # Double high-reversed quote
             },
-
             # Common reference markers
             "reference_markers": re.compile(r"\[\d+(?:,\s*\d+)*\]"),
-
             # Bullet points and list markers
             "bullets": re.compile(r"^[•◦▪▫→⇒]\s*", re.MULTILINE),
         }
@@ -109,8 +101,9 @@ class TextCleaner:
 
         return text.strip()
 
-    def remove_headers_footers(self, text: str, header_pattern: Optional[str] = None,
-                               footer_pattern: Optional[str] = None) -> str:
+    def remove_headers_footers(
+        self, text: str, header_pattern: Optional[str] = None, footer_pattern: Optional[str] = None
+    ) -> str:
         """
         Remove common headers and footers.
 
@@ -235,7 +228,7 @@ class TextCleaner:
         text = re.sub(r"\b(Dr|Mr|Mrs|Ms|Prof|Sr|Jr|vs|etc|e\.g|i\.e)\.", r"\1<PERIOD>", text)
 
         # Split on sentence boundaries
-        sentences = re.split(r'[.!?]+\s+', text)
+        sentences = re.split(r"[.!?]+\s+", text)
 
         # Restore periods in abbreviations
         sentences = [s.replace("<PERIOD>", ".").strip() for s in sentences]
