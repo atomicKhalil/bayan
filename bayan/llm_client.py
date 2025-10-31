@@ -2,8 +2,7 @@
 Optional LLM integration for summarization and paper classification.
 """
 
-from typing import Dict, Optional, List
-import warnings
+from typing import Dict, List
 
 
 class LLMClient:
@@ -52,9 +51,7 @@ class LLMClient:
         try:
             from openai import OpenAI
         except ImportError:
-            raise ImportError(
-                "OpenAI library not installed. Install with: pip install openai"
-            )
+            raise ImportError("OpenAI library not installed. Install with: pip install openai")
 
         api_key = self.config.get("api_key")
         if not api_key:
@@ -100,8 +97,7 @@ class LLMClient:
             import requests
         except ImportError:
             raise ImportError(
-                "Requests library required for local models. "
-                "Install with: pip install requests"
+                "Requests library required for local models. " "Install with: pip install requests"
             )
 
         self.base_url = self.config.get("base_url", "http://localhost:11434")
@@ -141,10 +137,10 @@ Text:
             model=self.model,
             messages=[
                 {"role": "system", "content": "You are an expert at summarizing academic papers."},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": prompt},
             ],
             temperature=self.config.get("temperature", 0.3),
-            max_tokens=self.config.get("max_tokens", 500)
+            max_tokens=self.config.get("max_tokens", 500),
         )
 
         return response.choices[0].message.content.strip()
@@ -162,9 +158,7 @@ Text:
             model=self.model,
             max_tokens=self.config.get("max_tokens", 500),
             temperature=self.config.get("temperature", 0.3),
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
+            messages=[{"role": "user", "content": prompt}],
         )
 
         return response.content[0].text.strip()
@@ -173,13 +167,10 @@ Text:
         """Summarize using HuggingFace."""
         # Limit input length
         max_input_length = 1024
-        text = text[:max_input_length * 4]  # Rough character estimate
+        text = text[: max_input_length * 4]  # Rough character estimate
 
         result = self.client(
-            text,
-            max_length=max_length,
-            min_length=max_length // 3,
-            do_sample=False
+            text, max_length=max_length, min_length=max_length // 3, do_sample=False
         )
 
         return result[0]["summary_text"]
@@ -197,10 +188,8 @@ Text:
                 "model": self.model,
                 "prompt": prompt,
                 "stream": False,
-                "options": {
-                    "temperature": self.config.get("temperature", 0.3)
-                }
-            }
+                "options": {"temperature": self.config.get("temperature", 0.3)},
+            },
         )
 
         if response.status_code == 200:
@@ -252,17 +241,24 @@ Format your response as JSON.
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": "You are an expert at classifying academic papers. Respond only with valid JSON."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an expert at classifying academic papers. "
+                        "Respond only with valid JSON."
+                    ),
+                },
+                {"role": "user", "content": prompt},
             ],
             temperature=0.1,
-            response_format={"type": "json_object"}
+            response_format={"type": "json_object"},
         )
 
         import json
+
         try:
             return json.loads(response.choices[0].message.content)
-        except:
+        except (json.JSONDecodeError, AttributeError, IndexError):
             return {"error": "Failed to parse classification"}
 
     def _classify_anthropic(self, prompt: str) -> Dict:
@@ -271,15 +267,14 @@ Format your response as JSON.
             model=self.model,
             max_tokens=500,
             temperature=0.1,
-            messages=[
-                {"role": "user", "content": prompt + "\n\nRespond only with valid JSON."}
-            ]
+            messages=[{"role": "user", "content": prompt + "\n\nRespond only with valid JSON."}],
         )
 
         import json
+
         try:
             return json.loads(response.content[0].text)
-        except:
+        except (json.JSONDecodeError, AttributeError, IndexError):
             return {"error": "Failed to parse classification"}
 
     def _classify_heuristic(self, metadata: Dict, sections: Dict) -> Dict:
@@ -308,11 +303,7 @@ Format your response as JSON.
                 domain = dom
                 break
 
-        return {
-            "paper_type": paper_type,
-            "domain": domain,
-            "methodology": "not analyzed"
-        }
+        return {"paper_type": paper_type, "domain": domain, "methodology": "not analyzed"}
 
     def extract_key_contributions(self, sections: Dict) -> List[str]:
         """
@@ -339,17 +330,18 @@ Text:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
-                        {"role": "system", "content": "Extract key contributions as a bulleted list."},
-                        {"role": "user", "content": prompt}
+                        {
+                            "role": "system",
+                            "content": "Extract key contributions as a bulleted list.",
+                        },
+                        {"role": "user", "content": prompt},
                     ],
-                    temperature=0.3
+                    temperature=0.3,
                 )
                 result = response.choices[0].message.content
             else:
                 response = self.client.messages.create(
-                    model=self.model,
-                    max_tokens=500,
-                    messages=[{"role": "user", "content": prompt}]
+                    model=self.model, max_tokens=500, messages=[{"role": "user", "content": prompt}]
                 )
                 result = response.content[0].text
 

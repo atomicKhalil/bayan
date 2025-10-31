@@ -3,7 +3,7 @@ PDF parsing module using PyMuPDF (fitz) and pdfminer for robust text extraction.
 """
 
 import fitz  # PyMuPDF
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple
 from pathlib import Path
 from bayan.cleaner import TextCleaner
 
@@ -78,21 +78,19 @@ class PDFParser:
         structured_blocks = []
         for block in blocks:
             if block.get("type") == 0:  # Text block
-                block_data = {
-                    "bbox": block["bbox"],  # (x0, y0, x1, y1)
-                    "text": "",
-                    "lines": []
-                }
+                block_data = {"bbox": block["bbox"], "text": "", "lines": []}  # (x0, y0, x1, y1)
 
                 for line in block.get("lines", []):
                     line_text = ""
                     for span in line.get("spans", []):
                         line_text += span.get("text", "")
 
-                    block_data["lines"].append({
-                        "text": line_text,
-                        "bbox": line["bbox"],
-                    })
+                    block_data["lines"].append(
+                        {
+                            "text": line_text,
+                            "bbox": line["bbox"],
+                        }
+                    )
                     block_data["text"] += line_text + "\n"
 
                 block_data["text"] = self.cleaner.clean(block_data["text"])
@@ -140,14 +138,16 @@ class PDFParser:
             if block.get("type") == 0:  # Text block
                 for line in block.get("lines", []):
                     for span in line.get("spans", []):
-                        spans.append({
-                            "text": span.get("text", ""),
-                            "size": span.get("size", 0),
-                            "flags": span.get("flags", 0),
-                            "font": span.get("font", ""),
-                            "color": span.get("color", 0),
-                            "bbox": span.get("bbox", (0, 0, 0, 0))
-                        })
+                        spans.append(
+                            {
+                                "text": span.get("text", ""),
+                                "size": span.get("size", 0),
+                                "flags": span.get("flags", 0),
+                                "font": span.get("font", ""),
+                                "color": span.get("color", 0),
+                                "bbox": span.get("bbox", (0, 0, 0, 0)),
+                            }
+                        )
 
         return spans
 
@@ -169,7 +169,7 @@ class PDFParser:
             "producer": metadata.get("producer", ""),
             "creation_date": metadata.get("creationDate", ""),
             "modification_date": metadata.get("modDate", ""),
-            "page_count": self.page_count
+            "page_count": self.page_count,
         }
 
     def search_text(self, query: str, case_sensitive: bool = False) -> List[Tuple[int, List]]:
@@ -216,16 +216,18 @@ class PDFParser:
             xref = img[0]
             base_image = self.doc.extract_image(xref)
 
-            images.append({
-                "index": img_index,
-                "xref": xref,
-                "width": base_image.get("width"),
-                "height": base_image.get("height"),
-                "colorspace": base_image.get("colorspace"),
-                "bpc": base_image.get("bpc"),  # bits per component
-                "ext": base_image.get("ext"),  # extension
-                "image_data": base_image.get("image")  # binary data
-            })
+            images.append(
+                {
+                    "index": img_index,
+                    "xref": xref,
+                    "width": base_image.get("width"),
+                    "height": base_image.get("height"),
+                    "colorspace": base_image.get("colorspace"),
+                    "bpc": base_image.get("bpc"),  # bits per component
+                    "ext": base_image.get("ext"),  # extension
+                    "image_data": base_image.get("image"),  # binary data
+                }
+            )
 
         return images
 
@@ -253,11 +255,7 @@ class PDFParser:
         structured_toc = []
         for entry in toc:
             level, title, page = entry
-            structured_toc.append({
-                "level": level,
-                "title": title.strip(),
-                "page": page
-            })
+            structured_toc.append({"level": level, "title": title.strip(), "page": page})
 
         return structured_toc
 

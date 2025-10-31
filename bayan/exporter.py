@@ -5,7 +5,7 @@ Export module for converting extracted data to various formats.
 import json
 import csv
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict
 from datetime import datetime
 
 
@@ -101,7 +101,7 @@ class PaperExporter:
             lines.append(f"**arXiv:** {metadata['arxiv_id']}")
 
         if metadata.get("affiliations"):
-            lines.append(f"\n**Affiliations:**")
+            lines.append("\n**Affiliations:**")
             for affiliation in metadata["affiliations"]:
                 lines.append(f"- {affiliation}")
 
@@ -118,9 +118,14 @@ class PaperExporter:
 
             # Priority order for sections
             priority_sections = [
-                "abstract", "introduction", "related_work",
-                "methodology", "experiments", "results",
-                "discussion", "conclusion"
+                "abstract",
+                "introduction",
+                "related_work",
+                "methodology",
+                "experiments",
+                "results",
+                "discussion",
+                "conclusion",
             ]
 
             # Add priority sections first
@@ -223,22 +228,18 @@ class PaperExporter:
             rows.append([])
             rows.append(["Table Number", "Caption", "Page"])
             for table in data["tables"]:
-                rows.append([
-                    table.get("number", ""),
-                    table.get("caption", ""),
-                    table.get("page", "")
-                ])
+                rows.append(
+                    [table.get("number", ""), table.get("caption", ""), table.get("page", "")]
+                )
 
         # Figures
         if data.get("figures"):
             rows.append([])
             rows.append(["Figure Number", "Caption", "Page"])
             for figure in data["figures"]:
-                rows.append([
-                    figure.get("number", ""),
-                    figure.get("caption", ""),
-                    figure.get("page", "")
-                ])
+                rows.append(
+                    [figure.get("number", ""), figure.get("caption", ""), figure.get("page", "")]
+                )
 
         # Write CSV
         with open(output_path, "w", encoding="utf-8", newline="") as f:
@@ -302,9 +303,14 @@ class PaperExporter:
         sections = data.get("sections", {})
         if sections:
             priority_sections = [
-                "abstract", "introduction", "related_work",
-                "methodology", "experiments", "results",
-                "discussion", "conclusion"
+                "abstract",
+                "introduction",
+                "related_work",
+                "methodology",
+                "experiments",
+                "results",
+                "discussion",
+                "conclusion",
             ]
 
             for section_name in priority_sections:
@@ -418,13 +424,13 @@ class PaperExporter:
 
         lines = [
             f"@article{{{cite_key},",
-            f'  title = {{{title}}},',
-            f'  author = {{{author_str}}},',
-            f'  year = {{{year}}},',
+            f"  title = {{{title}}},",
+            f"  author = {{{author_str}}},",
+            f"  year = {{{year}}},",
         ]
 
         if doi:
-            lines.append(f'  doi = {{{doi}}},')
+            lines.append(f"  doi = {{{doi}}},")
 
         lines.append("}")
 

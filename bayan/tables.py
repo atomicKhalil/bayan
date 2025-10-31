@@ -3,22 +3,26 @@ Table and figure extraction module for academic papers.
 """
 
 import re
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, TYPE_CHECKING
 from bayan.parser import PDFParser
 from bayan.cleaner import TextCleaner
 from bayan.utils import RegexPatterns
 
+# Type checking imports (only used for type hints)
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+
 # Optional imports for pandas and matplotlib
 try:
     import pandas as pd
+
     HAS_PANDAS = True
 except ImportError:
     HAS_PANDAS = False
 
 try:
     import matplotlib.pyplot as plt
-    from matplotlib.figure import Figure
-    import numpy as np
+
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
@@ -26,6 +30,7 @@ except ImportError:
 try:
     from PIL import Image
     import io
+
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
@@ -78,13 +83,15 @@ class TableExtractor:
             # Try to extract table content near the caption
             table_content = self._extract_table_content(match.end(), full_text, page_num)
 
-            tables.append({
-                "number": table_num,
-                "caption": caption,
-                "content": table_content["rows"],
-                "page": page_num,
-                "raw_text": table_content["raw_text"]
-            })
+            tables.append(
+                {
+                    "number": table_num,
+                    "caption": caption,
+                    "content": table_content["rows"],
+                    "page": page_num,
+                    "raw_text": table_content["raw_text"],
+                }
+            )
 
         return tables
 
@@ -126,12 +133,14 @@ class TableExtractor:
                     # Remove binary data for the summary
                     image_data = {k: v for k, v in image_data.items() if k != "image_data"}
 
-            figures.append({
-                "number": fig_num,
-                "caption": caption,
-                "page": page_num,
-                "image_metadata": image_data
-            })
+            figures.append(
+                {
+                    "number": fig_num,
+                    "caption": caption,
+                    "page": page_num,
+                    "image_metadata": image_data,
+                }
+            )
 
         return figures
 
@@ -155,7 +164,9 @@ class TableExtractor:
 
         return None
 
-    def _extract_table_content(self, start_pos: int, full_text: str, page_num: Optional[int]) -> Dict:
+    def _extract_table_content(
+        self, start_pos: int, full_text: str, page_num: Optional[int]
+    ) -> Dict:
         """
         Extract table content following a caption.
 
@@ -168,11 +179,13 @@ class TableExtractor:
             Dictionary with table rows and raw text
         """
         # Get text following the caption (next ~1000 characters)
-        table_region = full_text[start_pos:start_pos + 1000]
+        table_region = full_text[start_pos : start_pos + 1000]
 
         # Stop at next section marker or figure/table
         end_markers = [
-            "\nTable ", "\nFigure ", "\nFig. ",
+            "\nTable ",
+            "\nFigure ",
+            "\nFig. ",
             "\n\n\n",  # Multiple blank lines
         ]
 
@@ -187,10 +200,7 @@ class TableExtractor:
         # Try to parse as rows
         rows = self._parse_table_rows(table_text)
 
-        return {
-            "rows": rows,
-            "raw_text": table_text
-        }
+        return {"rows": rows, "raw_text": table_text}
 
     def _parse_table_rows(self, text: str) -> List[List[str]]:
         """
@@ -219,7 +229,7 @@ class TableExtractor:
 
             # Multiple spaces (common in plain text tables)
             elif "  " in line:
-                cells = [c.strip() for c in re.split(r'\s{2,}', line)]
+                cells = [c.strip() for c in re.split(r"\s{2,}", line)]
 
             # Pipe-separated
             elif "|" in line:
@@ -306,12 +316,14 @@ class TableExtractor:
 
         summaries = []
         for table in tables:
-            summaries.append({
-                "number": table["number"],
-                "caption": table["caption"],
-                "page": table["page"],
-                "row_count": len(table["content"])
-            })
+            summaries.append(
+                {
+                    "number": table["number"],
+                    "caption": table["caption"],
+                    "page": table["page"],
+                    "row_count": len(table["content"]),
+                }
+            )
 
         return summaries
 
@@ -326,11 +338,9 @@ class TableExtractor:
 
         summaries = []
         for figure in figures:
-            summaries.append({
-                "number": figure["number"],
-                "caption": figure["caption"],
-                "page": figure["page"]
-            })
+            summaries.append(
+                {"number": figure["number"], "caption": figure["caption"], "page": figure["page"]}
+            )
 
         return summaries
 
@@ -375,42 +385,42 @@ class TableExtractor:
 
         # Look for LaTeX-style equations
         # Inline equations: $...$
-        inline_matches = re.finditer(r'\$([^\$]+)\$', full_text)
+        inline_matches = re.finditer(r"\$([^\$]+)\$", full_text)
         for match in inline_matches:
-            equations.append({
-                "type": "inline",
-                "content": match.group(1).strip(),
-                "position": match.start()
-            })
+            equations.append(
+                {"type": "inline", "content": match.group(1).strip(), "position": match.start()}
+            )
 
         # Display equations: $$...$$ or \[...\] or equation environment
         display_patterns = [
-            r'\$\$([^\$]+)\$\$',
-            r'\\\[(.+?)\\\]',
-            r'\\begin\{equation\}(.+?)\\end\{equation\}',
+            r"\$\$([^\$]+)\$\$",
+            r"\\\[(.+?)\\\]",
+            r"\\begin\{equation\}(.+?)\\end\{equation\}",
         ]
 
         for pattern in display_patterns:
             matches = re.finditer(pattern, full_text, re.DOTALL)
             for match in matches:
-                equations.append({
-                    "type": "display",
-                    "content": match.group(1).strip(),
-                    "position": match.start()
-                })
+                equations.append(
+                    {
+                        "type": "display",
+                        "content": match.group(1).strip(),
+                        "position": match.start(),
+                    }
+                )
 
         # Number equations
-        numbered_eq_pattern = r'\((\d+)\)\s*$'
+        numbered_eq_pattern = r"\((\d+)\)\s*$"
         for eq in equations:
             # Check if equation has a number
             match = re.search(numbered_eq_pattern, eq["content"])
             if match:
                 eq["number"] = match.group(1)
-                eq["content"] = eq["content"][:match.start()].strip()
+                eq["content"] = eq["content"][: match.start()].strip()
 
         return equations
 
-    def get_table_as_dataframe(self, table_num: str) -> Optional['pd.DataFrame']:
+    def get_table_as_dataframe(self, table_num: str) -> Optional["pd.DataFrame"]:
         """
         Get a table as a pandas DataFrame.
 
@@ -425,8 +435,7 @@ class TableExtractor:
         """
         if not HAS_PANDAS:
             raise ImportError(
-                "pandas is required for DataFrame support. "
-                "Install with: pip install pandas"
+                "pandas is required for DataFrame support. " "Install with: pip install pandas"
             )
 
         table = self.extract_table_by_number(table_num)
@@ -442,7 +451,9 @@ class TableExtractor:
         # Use first row as headers if it looks like headers
         if len(rows) > 1:
             # Check if first row contains mostly text (not numbers)
-            first_row_text = sum(1 for cell in rows[0] if not cell.replace('.', '').replace('-', '').isdigit())
+            first_row_text = sum(
+                1 for cell in rows[0] if not cell.replace(".", "").replace("-", "").isdigit()
+            )
             if first_row_text > len(rows[0]) / 2:
                 # First row is likely headers
                 df = pd.DataFrame(rows[1:], columns=rows[0])
@@ -453,13 +464,13 @@ class TableExtractor:
             df = pd.DataFrame(rows)
 
         # Add metadata as attributes
-        df.attrs['table_number'] = table['number']
-        df.attrs['caption'] = table['caption']
-        df.attrs['page'] = table['page']
+        df.attrs["table_number"] = table["number"]
+        df.attrs["caption"] = table["caption"]
+        df.attrs["page"] = table["page"]
 
         return df
 
-    def get_all_tables_as_dataframes(self) -> Dict[str, 'pd.DataFrame']:
+    def get_all_tables_as_dataframes(self) -> Dict[str, "pd.DataFrame"]:
         """
         Get all tables as pandas DataFrames.
 
@@ -471,8 +482,7 @@ class TableExtractor:
         """
         if not HAS_PANDAS:
             raise ImportError(
-                "pandas is required for DataFrame support. "
-                "Install with: pip install pandas"
+                "pandas is required for DataFrame support. " "Install with: pip install pandas"
             )
 
         tables = self.extract_tables()
@@ -487,7 +497,9 @@ class TableExtractor:
 
             # Use first row as headers if it looks like headers
             if len(rows) > 1:
-                first_row_text = sum(1 for cell in rows[0] if not cell.replace('.', '').replace('-', '').isdigit())
+                first_row_text = sum(
+                    1 for cell in rows[0] if not cell.replace(".", "").replace("-", "").isdigit()
+                )
                 if first_row_text > len(rows[0]) / 2:
                     df = pd.DataFrame(rows[1:], columns=rows[0])
                 else:
@@ -496,16 +508,17 @@ class TableExtractor:
                 df = pd.DataFrame(rows)
 
             # Add metadata
-            df.attrs['table_number'] = table['number']
-            df.attrs['caption'] = table['caption']
-            df.attrs['page'] = table['page']
+            df.attrs["table_number"] = table["number"]
+            df.attrs["caption"] = table["caption"]
+            df.attrs["page"] = table["page"]
 
             dataframes[table_num] = df
 
         return dataframes
 
-    def plot_figure(self, fig_num: str, figsize: Tuple[int, int] = (10, 8),
-                   save_path: Optional[str] = None) -> Optional[Figure]:
+    def plot_figure(
+        self, fig_num: str, figsize: Tuple[int, int] = (10, 8), save_path: Optional[str] = None
+    ) -> Optional["Figure"]:
         """
         Plot a figure using matplotlib.
 
@@ -528,8 +541,7 @@ class TableExtractor:
 
         if not HAS_PIL:
             raise ImportError(
-                "Pillow (PIL) is required for image handling. "
-                "Install with: pip install Pillow"
+                "Pillow (PIL) is required for image handling. " "Install with: pip install Pillow"
             )
 
         figure = self.extract_figure_by_number(fig_num)
@@ -559,7 +571,7 @@ class TableExtractor:
         # Create matplotlib figure
         fig, ax = plt.subplots(figsize=figsize)
         ax.imshow(img)
-        ax.axis('off')
+        ax.axis("off")
 
         # Add title with caption
         caption = figure.get("caption", "")
@@ -572,13 +584,14 @@ class TableExtractor:
 
         # Save if requested
         if save_path:
-            fig.savefig(save_path, dpi=300, bbox_inches='tight')
+            fig.savefig(save_path, dpi=300, bbox_inches="tight")
             print(f"Figure saved to {save_path}")
 
         return fig
 
-    def plot_all_figures(self, figsize: Tuple[int, int] = (10, 8),
-                        save_dir: Optional[str] = None) -> List[Figure]:
+    def plot_all_figures(
+        self, figsize: Tuple[int, int] = (10, 8), save_dir: Optional[str] = None
+    ) -> List["Figure"]:
         """
         Plot all figures in the paper.
 
@@ -600,8 +613,7 @@ class TableExtractor:
 
         if not HAS_PIL:
             raise ImportError(
-                "Pillow (PIL) is required for image handling. "
-                "Install with: pip install Pillow"
+                "Pillow (PIL) is required for image handling. " "Install with: pip install Pillow"
             )
 
         figures = self.extract_figures()
@@ -613,6 +625,7 @@ class TableExtractor:
             save_path = None
             if save_dir:
                 import os
+
                 os.makedirs(save_dir, exist_ok=True)
                 save_path = os.path.join(save_dir, f"figure_{fig_num}.png")
 
@@ -639,8 +652,7 @@ class TableExtractor:
         """
         if not HAS_PIL:
             raise ImportError(
-                "Pillow (PIL) is required for image saving. "
-                "Install with: pip install Pillow"
+                "Pillow (PIL) is required for image saving. " "Install with: pip install Pillow"
             )
 
         figure = self.extract_figure_by_number(fig_num)
@@ -662,7 +674,7 @@ class TableExtractor:
         img_bytes = image_data["image_data"]
 
         # Save directly
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             f.write(img_bytes)
 
         return True
