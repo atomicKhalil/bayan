@@ -39,12 +39,12 @@ class TextCleaner:
 
             # Unicode normalization issues
             "unicode_dashes": {
-                "\u2010": "-",  # Hyphen
-                "\u2011": "-",  # Non-breaking hyphen
-                "\u2012": "-",  # Figure dash
-                "\u2013": "-",  # En dash
-                "\u2014": "--", # Em dash
-                "\u2015": "--", # Horizontal bar
+                "\u2010": "-",   # Hyphen
+                "\u2011": "-",   # Non-breaking hyphen
+                "\u2012": "-",   # Figure dash
+                "\u2013": "-",   # En dash
+                "\u2014": "--",  # Em dash
+                "\u2015": "--",  # Horizontal bar
             },
 
             "unicode_quotes": {

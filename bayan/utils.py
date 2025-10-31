@@ -58,12 +58,14 @@ class RegexPatterns:
 
     # Table and figure captions
     TABLE_CAPTION = re.compile(
-        r'(?:Table|TABLE)\s+(\d+|[IVX]+)[:\.]?\s*(.+?)(?=(?:Table|TABLE|Figure|FIGURE|\n\n|$))',
+        r'(?:Table|TABLE)\s+(\d+|[IVX]+)[:\.]?\s*(.+?)'
+        r'(?=(?:Table|TABLE|Figure|FIGURE|\n\n|$))',
         re.IGNORECASE | re.DOTALL
     )
 
     FIGURE_CAPTION = re.compile(
-        r'(?:Figure|Fig\.|FIG\.?)\s+(\d+|[IVX]+)[:\.]?\s*(.+?)(?=(?:Table|TABLE|Figure|FIGURE|Fig\.|\n\n|$))',
+        r'(?:Figure|Fig\.|FIG\.?)\s+(\d+|[IVX]+)[:\.]?\s*(.+?)'
+        r'(?=(?:Table|TABLE|Figure|FIGURE|Fig\.|\n\n|$))',
         re.IGNORECASE | re.DOTALL
     )
 
@@ -77,7 +79,8 @@ class RegexPatterns:
 
     # ISBN patterns
     ISBN = re.compile(
-        r'ISBN(?:-1[03])?:?\s*(?:97[89][\s-]?)?\d{1,5}[\s-]?\d{1,7}[\s-]?\d{1,7}[\s-]?\d{1,7}[\s-]?\d'
+        r'ISBN(?:-1[03])?:?\s*(?:97[89][\s-]?)?'
+        r'\d{1,5}[\s-]?\d{1,7}[\s-]?\d{1,7}[\s-]?\d{1,7}[\s-]?\d'
     )
 
     # Common abbreviations in papers

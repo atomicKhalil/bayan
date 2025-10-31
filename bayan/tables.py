@@ -157,7 +157,9 @@ class TableExtractor:
 
         return None
 
-    def _extract_table_content(self, start_pos: int, full_text: str, page_num: Optional[int]) -> Dict:
+    def _extract_table_content(
+        self, start_pos: int, full_text: str, page_num: Optional[int]
+    ) -> Dict:
         """
         Extract table content following a caption.
 
@@ -444,7 +446,10 @@ class TableExtractor:
         # Use first row as headers if it looks like headers
         if len(rows) > 1:
             # Check if first row contains mostly text (not numbers)
-            first_row_text = sum(1 for cell in rows[0] if not cell.replace('.', '').replace('-', '').isdigit())
+            first_row_text = sum(
+                1 for cell in rows[0]
+                if not cell.replace('.', '').replace('-', '').isdigit()
+            )
             if first_row_text > len(rows[0]) / 2:
                 # First row is likely headers
                 df = pd.DataFrame(rows[1:], columns=rows[0])
@@ -489,7 +494,10 @@ class TableExtractor:
 
             # Use first row as headers if it looks like headers
             if len(rows) > 1:
-                first_row_text = sum(1 for cell in rows[0] if not cell.replace('.', '').replace('-', '').isdigit())
+                first_row_text = sum(
+                    1 for cell in rows[0]
+                    if not cell.replace('.', '').replace('-', '').isdigit()
+                )
                 if first_row_text > len(rows[0]) / 2:
                     df = pd.DataFrame(rows[1:], columns=rows[0])
                 else:

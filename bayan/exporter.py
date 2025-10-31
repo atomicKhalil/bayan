@@ -5,7 +5,7 @@ Export module for converting extracted data to various formats.
 import json
 import csv
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict
 from datetime import datetime
 
 
@@ -101,7 +101,7 @@ class PaperExporter:
             lines.append(f"**arXiv:** {metadata['arxiv_id']}")
 
         if metadata.get("affiliations"):
-            lines.append(f"\n**Affiliations:**")
+            lines.append("\n**Affiliations:**")
             for affiliation in metadata["affiliations"]:
                 lines.append(f"- {affiliation}")
 

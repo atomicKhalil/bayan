@@ -3,7 +3,7 @@ PDF parsing module using PyMuPDF (fitz) and pdfminer for robust text extraction.
 """
 
 import fitz  # PyMuPDF
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple
 from pathlib import Path
 from bayan.cleaner import TextCleaner
 

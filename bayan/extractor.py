@@ -3,10 +3,10 @@ Extraction module for metadata, sections, and references from academic papers.
 """
 
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from bayan.parser import PDFParser
 from bayan.cleaner import TextCleaner
-from bayan.utils import RegexPatterns, TextUtils
+from bayan.utils import TextUtils
 
 
 class PaperExtractor:
@@ -131,10 +131,6 @@ class PaperExtractor:
         """Extract author names from first page."""
         lines = first_page.split("\n")
         authors = []
-
-        # Look for author section (usually after title)
-        in_author_section = False
-        author_lines = []
 
         for i, line in enumerate(lines[:30]):  # Check first 30 lines
             line = line.strip()

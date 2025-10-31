@@ -2,8 +2,7 @@
 Optional LLM integration for summarization and paper classification.
 """
 
-from typing import Dict, Optional, List
-import warnings
+from typing import Dict, List
 
 
 class LLMClient:
@@ -252,7 +251,13 @@ Format your response as JSON.
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": "You are an expert at classifying academic papers. Respond only with valid JSON."},
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an expert at classifying academic papers. "
+                        "Respond only with valid JSON."
+                    )
+                },
                 {"role": "user", "content": prompt}
             ],
             temperature=0.1,
@@ -262,7 +267,7 @@ Format your response as JSON.
         import json
         try:
             return json.loads(response.choices[0].message.content)
-        except:
+        except (json.JSONDecodeError, AttributeError, IndexError):
             return {"error": "Failed to parse classification"}
 
     def _classify_anthropic(self, prompt: str) -> Dict:
@@ -272,14 +277,17 @@ Format your response as JSON.
             max_tokens=500,
             temperature=0.1,
             messages=[
-                {"role": "user", "content": prompt + "\n\nRespond only with valid JSON."}
+                {
+                    "role": "user",
+                    "content": prompt + "\n\nRespond only with valid JSON."
+                }
             ]
         )
 
         import json
         try:
             return json.loads(response.content[0].text)
-        except:
+        except (json.JSONDecodeError, AttributeError, IndexError):
             return {"error": "Failed to parse classification"}
 
     def _classify_heuristic(self, metadata: Dict, sections: Dict) -> Dict:
@@ -339,7 +347,10 @@ Text:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
-                        {"role": "system", "content": "Extract key contributions as a bulleted list."},
+                        {
+                            "role": "system",
+                            "content": "Extract key contributions as a bulleted list."
+                        },
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.3
