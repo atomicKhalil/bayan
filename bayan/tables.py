@@ -3,10 +3,14 @@ Table and figure extraction module for academic papers.
 """
 
 import re
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, TYPE_CHECKING
 from bayan.parser import PDFParser
 from bayan.cleaner import TextCleaner
 from bayan.utils import RegexPatterns
+
+# Type checking imports (only used for type hints)
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
 
 # Optional imports for pandas and matplotlib
 try:
@@ -17,8 +21,6 @@ except ImportError:
 
 try:
     import matplotlib.pyplot as plt
-    from matplotlib.figure import Figure
-    import numpy as np
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
@@ -505,7 +507,7 @@ class TableExtractor:
         return dataframes
 
     def plot_figure(self, fig_num: str, figsize: Tuple[int, int] = (10, 8),
-                   save_path: Optional[str] = None) -> Optional[Figure]:
+                    save_path: Optional[str] = None) -> Optional["Figure"]:
         """
         Plot a figure using matplotlib.
 
@@ -578,7 +580,7 @@ class TableExtractor:
         return fig
 
     def plot_all_figures(self, figsize: Tuple[int, int] = (10, 8),
-                        save_dir: Optional[str] = None) -> List[Figure]:
+                         save_dir: Optional[str] = None) -> List["Figure"]:
         """
         Plot all figures in the paper.
 

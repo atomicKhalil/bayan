@@ -35,7 +35,7 @@ class RegexPatterns:
     )
 
     # Year patterns (1900-2099)
-    YEAR = re.compile(r'\b(19|20)\d{2}\b')
+    YEAR = re.compile(r'\b(?:19|20)\d{2}\b')
 
     # Common section headers
     SECTION_HEADERS = re.compile(
